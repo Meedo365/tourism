@@ -1,9 +1,9 @@
 require("dotenv").config()
 const touristRouter = require("./src/router/touristRoute")
-const authRouter = require("./src/router/authRoute")
-const bookingRouter = require("./src/router/bookingRoute")
-const reviewRouter = require("./src/router/reviewRoute")
-const usersRouter = require("./src/router/userRoute")
+// const authRouter = require("./src/router/authRoute")
+// const bookingRouter = require("./src/router/bookingRoute")
+// const reviewRouter = require("./src/router/reviewRoute")
+// const usersRouter = require("./src/router/userRoute")
 const errorHandler = require("./src/middleware/errorHandler")
 const cookieParser = require("cookie-parser")
 const mongoSanitize = require('express-mongo-sanitize')
@@ -13,11 +13,17 @@ const rateLimit = require('express-rate-limit')
 const hpp = require("hpp")
 const cors = require("cors")
 
+const routes = require('./src/routes');
 
-const express = require("express")
-const app = express()
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
 const connectDb = require("./config/config")
-app.use(express.urlencoded({extended:false}))
+const port = process.env.PORT || 5000;
+
+const CONNECTION_STRING = process.env.URL
+
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 
@@ -34,8 +40,7 @@ app.use(xss())
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 150, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-})
-
+});
 // Apply the rate limiting middleware to all requests
 app.use(limiter)
 
@@ -43,19 +48,15 @@ app.use(limiter)
 app.use(cors())
 
 app.use(hpp())
+app.use(routes);
+// app.use(errorHandler)
 
-app.use("/api/v1/tourist",touristRouter)
-app.use("/api/v1/auth",authRouter)
-app.use("/api/v1/booking",bookingRouter)
-app.use("/api/v1/reviews",reviewRouter)
-app.use("/api/v1/users",usersRouter)
-
-app.use(errorHandler)
-
-
+app.get('/', (req, res) => {
+	res.send("this is index route for endpoints, welcome to your tourism project endpoints");
+});
 
 connectDb()
-const port = 5000
-app.listen(port||PORT,()=>{
-    console.log(`app is listening on port ${port}`)
-})
+
+app.listen(port, () => {
+	console.log(`App is running on port ${port}`)
+});
