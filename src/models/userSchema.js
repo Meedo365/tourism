@@ -25,13 +25,10 @@ const userSchema = mongoose.Schema({
         type:String,
         enum:["active","pending"],
         default:"pending"
-    },
-    verifyToken:String,
-    resetToken:String,
-    resetTokenExpire:Date
+    }
 },{timestamps:true})
 
 
-const User = mongoose.model("User",userSchema)
+const User = mongoose.model("Users",userSchema)
 
 module.exports= User
