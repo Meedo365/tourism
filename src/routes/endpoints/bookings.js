@@ -1,20 +1,31 @@
 const Booking = require("../../models/bookings")
+const User = require("../../models/userSchema")
 
 let routes = (app) => {
 
     // create booking
     app.post('/booking', async (req, res) => {
-        const booking = new Booking(req.body)
+        const {
+            owner,
+            reservation: { centerId, time },
+        } = req.body;
+        let user = await User.findOne({ _id: owner });
+        const randomNum = Math.floor((Math.random() * 1000000) + 1);
+        const booking = new Booking({
+            owner,
+            reservation: { centerId, bookingNumber: randomNum, time },
+            email: user.email
+        })
         await booking.save()
-        res.json({ msg: "Booking Center has been created!" });
+        res.json({ msg: "Booking  has been created!" });
     });
 
     // get all bookings
     app.get('/bookings', async (req, res) => {
         try {
             let booking = await Booking.find()
-                .populate("owner", "name email")
-                .populate("reservation.touristCenter", "touristCenter location.formattedAddress")
+                .populate("owner", "name")
+                .populate("reservation.centerId", "touristCenter location.formattedAddress")
             res.json(booking)
         }
         catch (err) {
@@ -27,6 +38,8 @@ let routes = (app) => {
         try {
             let id = req.params.id
             let booking = await Booking.find({ owner: id })
+                .populate("owner", "name")
+                .populate("reservation.centerId", "touristCenter location.formattedAddress")
             if (!booking) return res.status(404).send({ msg: "This user has no existing booking" })
             res.json(booking)
         }
@@ -67,7 +80,7 @@ let routes = (app) => {
         try {
             let id = req.params.id
             await Booking.deleteOne({ _id: id })
-            res.json({ msg: "Booking Center Deleted" })
+            res.json({ msg: "Booking Deleted" })
         }
         catch (err) {
             res.status(500).send({ msg: "Error deleting booking" })

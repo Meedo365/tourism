@@ -6,7 +6,7 @@ const bookingSchema = mongoose.Schema({
         ref: "Users"
     },
     reservation: {
-        touristCenter: {
+        centerId: {
             type: mongoose.Schema.ObjectId,
             required: true,
             ref: "Tourist-Centers"
