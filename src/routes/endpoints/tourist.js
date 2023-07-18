@@ -4,9 +4,10 @@ const geocoder = require("../../utils/geocoder")
 
 let routes = (app) => {
 
+    // create center
     app.post('/create-center', async (req, res) => {
         // only admin and publisher can create tourist center
-        if (req.user.role != "admin" && req.user.role != "publisher") return next(new ErrorResponse("you cant accesss this route", 403))
+        // if (req.center.role != "admin" && req.center.role != "publisher") return next(new ErrorResponse("you cant accesss this route", 403))
 
         // use node-geocoder to get formatted address
         const loc = await geocoder.geocode(req.body.address)
@@ -16,67 +17,82 @@ let routes = (app) => {
             formattedAddress: loc[0].formattedAddress,
             street: loc[0].streetName,
             city: loc[0].city,
-            state: loc[0].stateCode,
+            state: loc[0].state,
             zipcode: loc[0].zipcode,
             country: loc[0].countryCode
         }
 
         req.body.location = location
-        const owner = req.user.id
-        req.body.owner = owner
+        // const owner = req.center.id
+        // req.body.owner = owner
 
         const tourist = new Tourist(req.body)
-
         await tourist.save()
-
-        res.json({ msg: "Tourist Center has been created!" })
-
+        res.json({ msg: "Tourist Center has been created!" });
     });
 
+    // get all centers
     app.get('/centers', async (req, res) => {
         try {
-            let user = await Tourist.find(querystring).populate({ path: "owner", select: "name email" })
-            res.json(user)
+            let center = await Tourist.find()
+                .populate("owner", "name email")
+            res.json(center)
         }
         catch (err) {
             res.status(500).send(err)
         }
     });
 
+    // get centers by a particular owner
+    app.get('/owner/:id', async (req, res) => {
+        try {
+            let id = req.params.id
+            let center = await Tourist.find({ owner: id })
+            if (!center) return next(new ErrorResponse(`no center with id ${id}`, 404))
+            res.json(center)
+        }
+        catch (err) {
+            res.status(500).send(err)
+        }
+    });
+
+    // get details of a center
     app.get('/center/:id', async (req, res) => {
         try {
             let id = req.params.id
-            let user = await User.findOne({ _id: id })
-            if (!user) return next(new ErrorResponse(`no user with id ${id}`, 404))
-            res.json(user)
+            let center = await Tourist.findOne({ _id: id })
+            if (!center) return res.status(404).send({ msg: "Center does not exist" })
+            res.json(center)
         }
         catch (err) {
-            res.status(500).send(err)
+            res.status(500).send({ msg: "Error getting center" })
         }
     });
 
+    // edit center
     app.put('/center/:id', async (req, res) => {
         try {
             const id = req.params.id
-            let tourist = await Tourist.findById(req.params.id);
-            // another user cannot delete what he did not create
-            if (tourist.user !== req.user.id && req.user.role !== "admin") return next(new ErrorResponse(`Not authorize to update`, 401))
+            let center = await Tourist.findById(req.params.id);
+            // another center cannot delete what he did not create
+            // if (tourist.center !== req.center.id && req.center.role !== "admin") return next(new ErrorResponse(`Not authorize to update`, 401))
             // const { name, email } = req.body
 
             // const field = { name, email }
 
-            // const user = await User.findByIdAndUpdate(id, field, { new: true })
+            // const center = await Tourist.findByIdAndUpdate(id, field, { new: true })
             // update tourist center   
-            tourist = await Tourist.findOneAndUpdate(req.params.id, req.body, { new: true })
+            center = await Tourist.findOneAndUpdate(req.params.id, req.body, { new: true })
             // if no tourist
-            if (!tourist) return next(new ErrorResponse("No tourist center found", 404))
-            res.status(200).json({ success: true, data: tourist })
+            if (!center) return res.status(404).send({ msg: "Center does not exist" })
+            res.status(200).json({ success: true, data: center })
         }
         catch (err) {
-            res.status(500).send(err)
+            res.status(500).send({ msg: "Error editting center" })
         }
     });
 
+    // delete center
     app.delete('/center/:id', async (req, res) => {
         try {
             let id = req.params.id
@@ -84,7 +100,7 @@ let routes = (app) => {
             res.json({ msg: "Tourist Center Deleted" })
         }
         catch (err) {
-            res.status(500).send(err)
+            res.status(500).send({ msg: "Error deleting center" })
         }
     });
 

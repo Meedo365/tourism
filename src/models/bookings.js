@@ -1,29 +1,29 @@
 const mongoose = require("mongoose")
 
 const bookingSchema = mongoose.Schema({
-    owner:{
-        type:mongoose.Schema.ObjectId,
-        ref:"User"
+    owner: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Users"
     },
-    reservation:[{
-        touristCenter:{
-            type:String,
-            required:true
+    reservation: {
+        touristCenter: {
+            type: mongoose.Schema.ObjectId,
+            required: true,
+            ref: "Tourist-Centers"
         },
-        bookingNumber:{
-            type:Number,
-            required:true
+        bookingNumber: {
+            type: Number,
+            required: true
         },
-        time:Date,
-
-
-    }],
-    email:{
-        type:String,
-        required:true
+        time: Date,
+    },
+    email: {
+        type: String,
+        required: true
     }
-},{timestamps:true})
+},
+    { timestamps: true })
 
-const Bookings = mongoose.model("Bookings",bookingSchema)
+const Bookings = mongoose.model("Bookings", bookingSchema)
 
 module.exports = Bookings

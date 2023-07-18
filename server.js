@@ -1,10 +1,4 @@
 require("dotenv").config()
-const touristRouter = require("./src/router/touristRoute")
-// const authRouter = require("./src/router/authRoute")
-// const bookingRouter = require("./src/router/bookingRoute")
-// const reviewRouter = require("./src/router/reviewRoute")
-// const usersRouter = require("./src/router/userRoute")
-const errorHandler = require("./src/middleware/errorHandler")
 const cookieParser = require("cookie-parser")
 const mongoSanitize = require('express-mongo-sanitize')
 const helmet = require("helmet")
@@ -12,16 +6,11 @@ const xss = require("xss-clean")
 const rateLimit = require('express-rate-limit')
 const hpp = require("hpp")
 const cors = require("cors")
-
 const routes = require('./src/routes');
-
 const express = require("express");
-const mongoose = require("mongoose");
 const app = express();
 const connectDb = require("./config/config")
 const port = process.env.PORT || 5000;
-
-const CONNECTION_STRING = process.env.URL
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())

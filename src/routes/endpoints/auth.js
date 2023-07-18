@@ -17,7 +17,7 @@ let routes = (app) => {
         password = await bcrypt.hash(password, 12)
 
         // const user = await User.create({ name, email, password, role, status: "active" })
-        const newUser =  new User({
+        const newUser = new User({
             name, email, password, role, status: "active"
         })
 
