@@ -2,5 +2,5 @@ node_modules/
 .env
 router
 ReviewsSchema.js
-.gitIgnore
+.gitignore
 controller
